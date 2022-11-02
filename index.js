@@ -12,9 +12,7 @@ const fetchData = async (_url) => {
 	return res;
 }
 
-const url = 'https://www.gsmarena.com/xiaomi_redmi_note_12-11956.php';
-
-fetchData(url).then(res => {
+const crawlData = (res) => {
 	let result = {};
 	if (res?.data) {
 		const $ = cheerio.load(res.data);
@@ -32,4 +30,10 @@ fetchData(url).then(res => {
 		})
 	}
 	console.log('result --->', result);
-});
+}
+
+const { argv } = require('process');
+const url = argv.splice(2)[0];
+
+if (!!url) fetchData(url).then(crawlData);
+else console.log('Please enter a link')
