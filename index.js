@@ -14,22 +14,29 @@ const fetchData = async (_url) => {
 
 const crawlData = (res) => {
 	let result = {};
+	let latestKey = '';
+
 	if (res?.data) {
 		const $ = cheerio.load(res.data);
 		const specList = $('#specs-list > table > tbody');
-		specList.each((_, { children: [ target ] }) => {
-			const part = $(target).find('th').text();
-			const title = $(target).find('.ttl').text();
-			const info = $(target).find('.nfo').text();
-			
-			Object.assign(result, {
-				[part]: {
-					[title]: info
-				}
-			})
-		})
+		specList.each((_, tbody) => {
+			const part = $(tbody).find('th').text();
+
+			$(tbody).find('.ttl').each((_, ttl) => {
+				const title = $(ttl).text().trim() != '' ? $(ttl).text() : latestKey;
+				latestKey = title;
+				const value = $(ttl).siblings('.nfo').text();
+				
+				if (!result[part]) result[part] = {};
+
+				Object.assign(result[part], {
+					[title]: value
+				});
+			});
+		});
+
+		console.log(result);
 	}
-	console.log('result --->', result);
 }
 
 const { argv } = require('process');
